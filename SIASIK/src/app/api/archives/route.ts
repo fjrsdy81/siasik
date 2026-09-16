@@ -5,6 +5,7 @@ import { archives, categories, units } from "@/db/schema";
 import { getSessionUser, logAudit } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const s = await getSessionUser();
