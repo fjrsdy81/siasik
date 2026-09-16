@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { destroySession, getSessionUser, logAudit } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST() {
   const s = await getSessionUser();
   if (s) {
