@@ -5,6 +5,7 @@ import { auditLogs } from "@/db/schema";
 import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const s = await getSessionUser();
