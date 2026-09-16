@@ -4,6 +4,9 @@ import { db } from "@/db";
 import { archives } from "@/db/schema";
 import { getSessionUser, logAudit } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const s = await getSessionUser();
   if (!s) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
