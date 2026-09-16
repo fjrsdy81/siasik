@@ -5,6 +5,7 @@ import { units } from "@/db/schema";
 import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET() {
   const s = await getSessionUser();
