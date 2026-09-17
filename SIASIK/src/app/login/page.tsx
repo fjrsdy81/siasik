@@ -17,6 +17,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [err, setErr] = useState("");
+  const [hint, setHint] = useState("");
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { refresh } = useAuth();
@@ -24,6 +26,8 @@ export default function LoginPage() {
   const submit = async (e: React.FormEvent, pre?: { nip: string; pass: string }) => {
     e?.preventDefault();
     setErr("");
+    setHint("");
+    setCode("");
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -34,16 +38,25 @@ export default function LoginPage() {
           password: pre?.pass || password,
         }),
       });
-      const j = await res.json();
+      let j: { error?: string; code?: string; hint?: string } = {};
+      try {
+        j = await res.json();
+      } catch {
+        setErr(`Server mengembalikan respons tidak valid (HTTP ${res.status}). Kemungkinan env DB salah / function crash. Cek /api/health.`);
+        setLoading(false);
+        return;
+      }
       if (!res.ok) {
         setErr(j.error || "Gagal masuk");
+        setHint(j.hint || "");
+        setCode(j.code || "");
         setLoading(false);
         return;
       }
       await refresh();
       router.push("/dashboard");
     } catch {
-      setErr("Tidak dapat terhubung ke server");
+      setErr("Tidak dapat terhubung ke server. Periksa koneksi / deployment.");
       setLoading(false);
     }
   };
@@ -108,7 +121,18 @@ export default function LoginPage() {
 
             {err && (
               <div className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 ring-1 ring-rose-200">
-                ⚠️ {err}
+                <p>⚠️ {err}</p>
+                {hint && <p className="mt-1.5 text-xs font-medium leading-relaxed text-rose-600">💡 {hint}</p>}
+                {(code === "DB_NOT_INIT" || code === "NOT_FOUND" || code === "DB_NO_URL" || code === "DB_CONN") && (
+                  <p className="mt-2 text-xs">
+                    <a href="/api/health" target="_blank" className="font-bold underline">Cek /api/health</a>
+                    {" • "}
+                    <a href="/api/setup" target="_blank" className="font-bold underline">Cek /api/setup</a>
+                    {code === "DB_NOT_INIT" || code === "NOT_FOUND" ? (
+                      <span> • Database baru? Jalankan <b>POST /api/setup</b> sekali untuk buat tabel + akun demo.</span>
+                    ) : null}
+                  </p>
+                )}
               </div>
             )}
 
